@@ -1,8 +1,7 @@
 import os
 from dataclasses import dataclass
 
-from youtube_transcript_api import YouTubeTranscriptApi
-from youtube_transcript_api.proxies import WebshareProxyConfig
+import httpx
 
 from .planning import YOUTUBE_URL_PATTERN
 
@@ -14,20 +13,7 @@ class YouTubeTranscriptResult:
 
 
 class YouTubeTranscriptService:
-    def _build_api(self) -> YouTubeTranscriptApi:
-        proxy_username = os.getenv("YOUTUBE_PROXY_USERNAME")
-        proxy_password = os.getenv("YOUTUBE_PROXY_PASSWORD")
-
-        if proxy_username and proxy_password:
-            return YouTubeTranscriptApi(
-                proxy_config=WebshareProxyConfig(
-                    proxy_username=proxy_username,
-                    proxy_password=proxy_password,
-                    filter_ip_locations=["in", "us"],
-                )
-            )
-
-        return YouTubeTranscriptApi()
+    API_URL = "https://api.supadata.ai/v1/transcript"
 
     def fetch(self, url: str) -> YouTubeTranscriptResult:
         match = YOUTUBE_URL_PATTERN.search(url)
@@ -41,31 +27,53 @@ class YouTubeTranscriptService:
                 ),
             )
 
-        video_id = match.group(1)
+        api_key = os.getenv("SUPADATA_API_KEY")
+
+        if not api_key:
+            return YouTubeTranscriptResult(
+                text="",
+                warning=(
+                    "YouTube transcript fetching requires "
+                    "SUPADATA_API_KEY."
+                ),
+            )
 
         try:
-            api = self._build_api()
+            response = httpx.get(
+                self.API_URL,
+                params={
+                    "url": url,
+                    "text": "true",
+                    "mode": "auto",
+                },
+                headers={
+                    "x-api-key": api_key,
+                },
+                timeout=90.0,
+            )
 
-            transcript_list = api.list(video_id)
-            transcripts = list(transcript_list)
-
-            if not transcripts:
+            if response.status_code == 202:
                 return YouTubeTranscriptResult(
                     text="",
                     warning=(
-                        "No transcript tracks are available "
-                        "for this video."
+                        "The transcript is still being generated. "
+                        "Please retry shortly."
                     ),
                 )
 
-            transcript = transcripts[0]
-            fetched = transcript.fetch()
+            response.raise_for_status()
 
-            text = " ".join(
-                snippet.text.strip()
-                for snippet in fetched
-                if snippet.text.strip()
-            )
+            data = response.json()
+            content = data.get("content", "")
+
+            if isinstance(content, list):
+                content = " ".join(
+                    str(item.get("text", "")).strip()
+                    for item in content
+                    if item.get("text")
+                )
+
+            text = str(content).strip()
 
             if not text:
                 return YouTubeTranscriptResult(
@@ -78,14 +86,23 @@ class YouTubeTranscriptService:
                 warning=None,
             )
 
-        except Exception as exc:
-            error_type = type(exc).__name__
-            error_message = str(exc)[:300]
+        except httpx.HTTPStatusError as exc:
+            status_code = exc.response.status_code
+            error_text = exc.response.text[:300]
 
             return YouTubeTranscriptResult(
                 text="",
                 warning=(
+                    "YouTube transcript API failed with "
+                    f"HTTP {status_code}: {error_text}"
+                ),
+            )
+
+        except Exception as exc:
+            return YouTubeTranscriptResult(
+                text="",
+                warning=(
                     "YouTube transcript fetch failed: "
-                    f"{error_type}: {error_message}"
+                    f"{type(exc).__name__}: {str(exc)[:300]}"
                 ),
             )
