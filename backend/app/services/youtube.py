@@ -23,6 +23,7 @@ class YouTubeTranscriptService:
                 proxy_config=WebshareProxyConfig(
                     proxy_username=proxy_username,
                     proxy_password=proxy_password,
+                    filter_ip_locations=["in", "us"],
                 )
             )
 
@@ -33,21 +34,28 @@ class YouTubeTranscriptService:
 
         if not match:
             return YouTubeTranscriptResult(
-                "",
-                "The detected URL is not a supported YouTube video URL.",
+                text="",
+                warning=(
+                    "The detected URL is not a supported "
+                    "YouTube video URL."
+                ),
             )
 
         video_id = match.group(1)
 
         try:
             api = self._build_api()
+
             transcript_list = api.list(video_id)
             transcripts = list(transcript_list)
 
             if not transcripts:
                 return YouTubeTranscriptResult(
-                    "",
-                    "No transcript tracks are available for this video.",
+                    text="",
+                    warning=(
+                        "No transcript tracks are available "
+                        "for this video."
+                    ),
                 )
 
             transcript = transcripts[0]
@@ -61,15 +69,23 @@ class YouTubeTranscriptService:
 
             if not text:
                 return YouTubeTranscriptResult(
-                    "",
-                    "The video transcript was empty.",
+                    text="",
+                    warning="The video transcript was empty.",
                 )
 
-            return YouTubeTranscriptResult(text)
+            return YouTubeTranscriptResult(
+                text=text,
+                warning=None,
+            )
 
         except Exception as exc:
+            error_type = type(exc).__name__
+            error_message = str(exc)[:300]
+
             return YouTubeTranscriptResult(
-                "",
-                f"YouTube transcript fetch failed: "
-                f"{type(exc).__name__}: {str(exc)[:300]}",
+                text="",
+                warning=(
+                    "YouTube transcript fetch failed: "
+                    f"{error_type}: {error_message}"
+                ),
             )
