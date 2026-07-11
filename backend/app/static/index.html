@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Auditable multimodal AI workbench" />
+    <title>Multimodal Agent Workbench</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="masthead">
+        <div>
+          <p class="eyebrow">Parallel Minds assignment</p>
+          <h1>Multimodal Agent Workbench</h1>
+          <p class="subtitle">Bring text, images, PDFs, and audio together in one auditable request.</p>
+        </div>
+        <a class="health" href="/api/health" target="_blank" rel="noreferrer">System status</a>
+      </header>
+
+      <section id="chat" class="chat" aria-live="polite" aria-label="Agent conversation">
+        <article class="message assistant-message">
+          <p class="message-label">Agent</p>
+          <p>Tell me what you want to achieve, then add one or more files if helpful. I’ll extract the content, choose the smallest safe tool sequence, and show the trace.</p>
+          <p class="hint">Examples: “Summarize this PDF”, “Explain the code in this image”, or “Do these two files discuss the same topic?”</p>
+        </article>
+      </section>
+
+      <form id="agent-form" class="composer" novalidate>
+        <label for="query">Your request</label>
+        <textarea id="query" name="query" rows="3" maxlength="4000" placeholder="e.g. Find the action items in these meeting notes"></textarea>
+        <div class="composer-row">
+          <div class="file-picker">
+            <label for="files">Attach files</label>
+            <input id="files" name="files" type="file" multiple accept=".jpg,.jpeg,.png,.pdf,.mp3,.wav,.m4a" />
+            <p id="file-summary" class="hint">JPG, PNG, PDF, MP3, WAV, or M4A · up to 8 files</p>
+          </div>
+          <button id="submit" type="submit">Run agent</button>
+        </div>
+      </form>
+    </main>
+    <template id="user-template">
+      <article class="message user-message">
+        <p class="message-label">You</p>
+        <p class="user-query"></p>
+        <ul class="attachment-list"></ul>
+      </article>
+    </template>
+    <template id="result-template">
+      <article class="message assistant-message result-message">
+        <p class="message-label">Agent result</p>
+        <pre class="answer"></pre>
+        <div class="result-grid">
+          <section>
+            <h2>Tool trace</h2>
+            <ol class="plan"></ol>
+          </section>
+          <section>
+            <h2>Cost estimate</h2>
+            <p class="cost"></p>
+          </section>
+        </div>
+        <section class="extractions">
+          <h2>Extracted content</h2>
+          <div class="document-list"></div>
+        </section>
+        <p class="warnings" hidden></p>
+      </article>
+    </template>
+    <script src="/static/app.js" defer></script>
+  </body>
+</html>
+
