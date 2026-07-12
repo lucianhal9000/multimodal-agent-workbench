@@ -182,91 +182,203 @@ README.md
 
 # Supported Workflows
 
-## Document Summarization
+The planning engine dynamically constructs the minimum execution pipeline based on the user's request and the uploaded content.
 
-```
-PDF
+---
 
-↓
+## 📄 Document Summarization
 
+**User Request**
+
+> Summarize this PDF.
+
+**Execution Pipeline**
+
+```text
+PDF Upload
+    │
+    ▼
 PDF Parser
-
-↓
-
+    │
+    ▼
+Text Extraction
+    │
+    ▼
 Structured Summarizer
+    │
+    ▼
+Formatted Summary
+```
+
+**Output**
+
+- One-line summary
+- Key points
+- Five-sentence summary
+
+---
+
+## 🖼️ Code Understanding from Images
+
+**User Request**
+
+> Explain this code.
+
+**Execution Pipeline**
+
+```text
+Image Upload
+    │
+    ▼
+OCR Engine
+    │
+    ▼
+Extract Source Code
+    │
+    ▼
+Code Analysis
+    │
+    ▼
+Explanation
+    │
+    ├── Programming Language
+    ├── Bug Detection
+    ├── Complexity Analysis
+    └── Improvement Suggestions
 ```
 
 ---
 
-## Code Explanation
+## 🎙️ Audio Transcription & Summarization
 
-```
-Image
+**User Request**
 
-↓
+> Summarize this audio.
 
-OCR
+**Execution Pipeline**
 
-↓
-
-Code Reviewer
-```
-
----
-
-## Audio Analysis
-
-```
-Audio
-
-↓
-
+```text
+Audio Upload
+    │
+    ▼
 Speech Transcription
-
-↓
-
-Structured Summary
+    │
+    ▼
+Transcript
+    │
+    ▼
+Structured Summarizer
+    │
+    ▼
+Summary Output
 ```
 
 ---
 
-## PDF → YouTube → Summary
+## 🎥 Automatic YouTube Understanding
 
-```
-PDF
+**User Request**
 
-↓
+> Hit the YouTube URL in this PDF and summarize it.
 
-Extract YouTube URL
+**Execution Pipeline**
 
-↓
-
+```text
+PDF Upload
+    │
+    ▼
+PDF Parser
+    │
+    ▼
+Discover YouTube URL
+    │
+    ▼
 Transcript Retrieval
+    │
+    ▼
+Structured Summarizer
+    │
+    ▼
+Video Summary
+```
 
-↓
+No manual copy-paste of the YouTube URL is required.
 
-Structured Summary
+---
+
+## 🔄 Cross-Modal Comparison
+
+**User Request**
+
+> Do these files discuss the same topic?
+
+**Execution Pipeline**
+
+```text
+Resume.pdf        Interview.mp3
+     │                  │
+     ▼                  ▼
+PDF Parser      Audio Transcriber
+     │                  │
+     └──────────┬────────┘
+                ▼
+         Combined Context
+                │
+                ▼
+       Cross-Input Comparator
+                │
+                ▼
+ Similarities • Differences • Uncertainty
 ```
 
 ---
 
-## Cross-Modal Comparison
+## 💬 Conversational Question Answering
 
+**User Request**
+
+> What is FastAPI?
+
+**Execution Pipeline**
+
+```text
+User Query
+     │
+     ▼
+Planner
+     │
+     ▼
+Reasoning Engine
+     │
+     ▼
+Conversational Response
 ```
-Resume.pdf
 
-+
+No external tools are executed because the planner determines they are unnecessary.
 
-Interview.mp3
+---
 
-↓
+## ❓ Clarification Workflow
 
-Extraction
+If the uploaded files do not clearly indicate the intended task, the planner requests clarification before invoking any tool.
 
-↓
-
-Comparator
+```text
+Files Uploaded
+      │
+      ▼
+Planner
+      │
+      ▼
+Task Ambiguous?
+      │
+  Yes ▼
+Clarification Gate
+      │
+      ▼
+Wait for User Intent
 ```
+
+This prevents incorrect assumptions and unnecessary tool execution.
 
 ---
 
