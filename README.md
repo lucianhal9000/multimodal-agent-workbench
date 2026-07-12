@@ -6,6 +6,9 @@
 ![FastAPI](https://img.shields.io/badge/FastAPI-Production-green)
 ![Docker](https://img.shields.io/badge/Docker-Ready-blue)
 ![Render](https://img.shields.io/badge/Deployment-Render-purple)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-online-brightgreen)](https://multimodal-agent-workbench.onrender.com/)
+
+**🔗 Live App:** [multimodal-agent-workbench.onrender.com](https://multimodal-agent-workbench.onrender.com/)
 
 ---
 
